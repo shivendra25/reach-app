@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reach
 
-## Getting Started
+**Find the audience that actually wants your app.**
 
-First, run the development server:
+Reach is a GTM tool for devs who built an app and now need to find and reach the *right* audience and turn it into revenue. It pairs two things:
+
+1. **Audience discovery (research)** — given your app, find where its real users already hang out, what they complain about, what they'd pay, and how they describe the problem in their own words.
+2. **Distribution** — draft platform-native posts and ship them to the top-ranked communities, then capture signals back into a per-project dashboard.
+
+## Status
+
+Pioneer cohort — **free while building**. Niche scope: apps with a findable niche audience (dev tools, prosumer, vertical SaaS).
+
+## Stack
+
+- Next.js 16 (App Router, Turbopack, Server Actions, Route Handlers)
+- TypeScript end to end
+- Tailwind CSS v4
+- Supabase (Postgres + Auth) — wiring in next brick
+- Anthropic / OpenAI for the research agent
+- Stripe (wired but disabled at launch)
+
+## Getting started
 
 ```bash
+cp .env.example .env.local   # all keys optional during scaffolding
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project layout
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+  app/        routes, layouts, page UI
+  lib/        cross-cutting code (env, db, agent, research)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture (target)
 
-## Learn More
+```
+/app            → Next.js routes (onboarding, projects, report view, dashboard)
+/lib/agent      → TS agent orchestration (tools: web search, reddit, hn)
+/lib/research   → report synthesis, evidence ranking, verdict logic
+/lib/db         → Postgres access (projects, runs, reports, posts, signals)
+/jobs           → async research runner (queued background work)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Engineering rules for this repo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Agile bricks: small, self-contained, individually committed.
+- Every brick must pass `npm run lint` and `npm run build`.
+- v16 conventions: `proxy.ts` (not middleware), async `cookies()` / `headers()` / `params` / `searchParams`, `PageProps<'/path'>` helpers.
