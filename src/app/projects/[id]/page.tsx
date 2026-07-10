@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getUser } from "@/lib/auth/server";
 import { getProject } from "@/lib/projects/repo";
+import NicheGateForm from "@/app/projects/[id]/NicheGateForm";
 
 export default async function ProjectPage({
   params,
@@ -24,6 +25,10 @@ export default async function ProjectPage({
 
   const project = await getProject(id, user.id);
   if (!project) notFound();
+
+  const showGate = project.niche_fit === "pending" || project.niche_fit === "not_fit";
+  const showNotFitWarning = project.niche_fit === "not_fit";
+  const researchReady = project.niche_fit === "fit";
 
   return (
     <main className="flex flex-1 flex-col px-6 py-12 max-w-4xl mx-auto w-full">
@@ -49,7 +54,7 @@ export default async function ProjectPage({
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 mb-8">
         <div className="rounded-xl border border-foreground/10 p-5">
           <h2 className="text-sm font-medium text-foreground/50 mb-2">Problem</h2>
           <p className="text-sm">{project.problem}</p>
@@ -71,12 +76,42 @@ export default async function ProjectPage({
         </div>
       </div>
 
-      {/* The audience report and research trigger land in the next bricks. */}
-      <div className="mt-8 rounded-xl border border-dashed border-foreground/15 p-8 text-center">
-        <p className="text-foreground/50 text-sm">
-          Audience Report — coming in the next brick.
-        </p>
-      </div>
+      {showNotFitWarning && (
+        <div className="mb-8 rounded-xl border border-red-200 bg-red-50 p-5">
+          <h2 className="text-sm font-medium text-red-800 mb-1">
+            This app doesn&apos;t fit Reach yet
+          </h2>
+          <p className="text-sm text-red-700">{project.niche_fit_reason}</p>
+          <p className="text-xs text-red-600 mt-2">
+            You can still re-evaluate below if you&apos;ve narrowed your audience.
+          </p>
+        </div>
+      )}
+
+      {showGate && (
+        <div className="mb-8 rounded-xl border border-foreground/10 p-6">
+          <h2 className="text-lg font-semibold mb-1">Quick fit check</h2>
+          <p className="text-sm text-foreground/60 mb-6">
+            Answer 3 questions so we can determine if your app is a good fit for
+            community-based audience discovery.
+          </p>
+          <NicheGateForm projectId={project.id} />
+        </div>
+      )}
+
+      {researchReady && (
+        <div className="mt-2 flex flex-col gap-4">
+          <Link
+            href={`/projects/${project.id}/report`}
+            className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-6 text-background font-medium hover:opacity-90 transition self-start"
+          >
+            Generate Audience Report
+          </Link>
+          {project.niche_fit_reason && (
+            <p className="text-sm text-foreground/50">{project.niche_fit_reason}</p>
+          )}
+        </div>
+      )}
     </main>
   );
 }
