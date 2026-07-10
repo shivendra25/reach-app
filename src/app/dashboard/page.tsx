@@ -50,7 +50,7 @@ export default async function DashboardPage() {
           {projects.map((p) => (
             <li key={p.id}>
               <Link
-                href={`/projects/${p.id}`}
+                href={p.status === "researched" ? `/projects/${p.id}/report` : `/projects/${p.id}`}
                 className="flex items-center justify-between rounded-xl border border-foreground/10 px-5 py-4 hover:border-foreground/25 transition"
               >
                 <div className="flex flex-col">
@@ -60,6 +60,9 @@ export default async function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <FitBadge fit={p.niche_fit} />
                   <StatusBadge status={p.status} />
+                  {p.status === "researched" && (
+                    <span className="text-xs text-foreground/40">View report →</span>
+                  )}
                 </div>
               </Link>
             </li>

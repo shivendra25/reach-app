@@ -105,7 +105,7 @@ export default async function ProjectPage({
             href={`/projects/${project.id}/report`}
             className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-6 text-background font-medium hover:opacity-90 transition self-start"
           >
-            Generate Audience Report
+            {project.status === "researched" ? "View Audience Report" : "Generate Audience Report"}
           </Link>
           {project.niche_fit_reason && (
             <p className="text-sm text-foreground/50">{project.niche_fit_reason}</p>
