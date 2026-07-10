@@ -6,6 +6,7 @@ import {
   updateProjectStatus,
 } from "@/lib/projects/repo";
 import type { Project } from "@/types/db";
+import { runResearch } from "@/lib/agent/research-agent";
 import { runResearchStub } from "@/lib/research/agent-stub";
 
 export interface StartResearchArgs {
@@ -51,15 +52,32 @@ export async function startResearch({
   }
 }
 
+/**
+ * Decide which agent to run. If any real API key is configured, use the
+ * real agent (which falls back gracefully per-tool). Otherwise use the stub
+ * so the flow works end-to-end in scaffolding mode.
+ */
+function isRealAgentConfigured() {
+  return !!(
+    process.env.EXA_API_KEY ||
+    process.env.ANTHROPIC_API_KEY ||
+    process.env.OPENAI_API_KEY
+  );
+}
+
 async function runAgent(project: Project) {
-  // TODO(Brick 7): switch to real agent when LLM + search keys are configured.
-  // For now, always run the stub.
-  return runResearchStub({
+  const agentInput = {
     projectName: project.name,
     problem: project.problem,
     whoSuffers: project.who_suffers,
     whatTheyPay: project.what_they_pay,
     appUrl: project.app_url,
     repoUrl: project.repo_url,
-  });
+  };
+
+  if (isRealAgentConfigured()) {
+    return runResearch(agentInput);
+  }
+
+  return runResearchStub(agentInput);
 }

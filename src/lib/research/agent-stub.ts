@@ -49,7 +49,7 @@ export async function runResearchStub(input: AgentInput): Promise<AgentResult> {
 
   const communities = devSignal ? devCommunities() : genericCommunities();
 
-  const evidence = generateEvidence(input);
+  const evidence = generateEvidence();
 
   return {
     icp_summary: devSignal
@@ -121,7 +121,7 @@ function genericCommunities(): Omit<Community, "id" | "report_id" | "created_at"
   ];
 }
 
-function generateEvidence(_input: AgentInput) {
+function generateEvidence() {
   return [
     {
       supports: "icp",
